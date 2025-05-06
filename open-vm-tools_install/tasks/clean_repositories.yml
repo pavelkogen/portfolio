@@ -1,0 +1,12 @@
+---
+- name: Remove broken repository files
+  find:
+    paths: /etc/yum.repos.d/
+    patterns: 'CentOS*,dvd*,rh7test*,rhel-source*,epel*'
+  register: files_to_delete
+
+- name: Ansible remove file glob
+  file:
+    path: '{{ item.path }}'
+    state: absent
+  with_items: '{{ files_to_delete.files }}'

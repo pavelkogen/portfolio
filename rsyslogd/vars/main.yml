@@ -1,0 +1,2 @@
+rotator_disk_name: /dev/sdb1
+rotator_disk_mount_path: /syslog

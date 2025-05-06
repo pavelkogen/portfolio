@@ -1,0 +1,26 @@
+- name: make configuration directory
+  file:
+    name: /adm/
+    state: directory
+
+- name: copy configuring cron files
+  copy:
+    src: "{{ role_path }}/files/adm/"
+    dest: /adm/
+    mode: '0755'
+
+- name: Calc hour stats
+  cron:
+    name: "calc_hour_stat.pl"
+    minute: 1
+    user: root
+    job: "/usr/bin/perl /adm/calc_hour_stat.pl"
+
+- name: Rotate 113015.log
+  cron:
+    disabled: yes
+    name: "rotate.pl"
+    minute: 0
+    hour: 0
+    user: root
+    job: "/adm/113015_rotate.pl /syslog/ticketdebug/113015.log"

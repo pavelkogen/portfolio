@@ -1,0 +1,3 @@
+---
+  - include: clean_repositories.yml
+  - include: vmtools_install.yml

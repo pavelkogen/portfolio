@@ -1,0 +1,79 @@
+- name: Install packages for syslog server
+  apt:
+    name:
+      - rsyslog
+      - logrotate
+    state: present
+    update_cache: yes
+
+- name: make configuration directory
+  file:
+    name: /adm/logrotate/
+    state: directory
+    recurse: yes
+
+- name: copy configuring logrotate file
+  copy:
+    src: "{{ role_path }}/files/adm/logrotate/postrotate.py"
+    dest: /adm/logrotate/postrotate.py
+    mode: '0755'
+
+- name: Set up cron
+  import_tasks: cron.yml
+
+- name: Gather package facts
+  package_facts:
+    manager: apt
+
+- name: Create list of mounted devices
+  set_fact:
+    mounted_devices: "{{ ansible_mounts|json_query('[].device') }}"
+
+- name: Check disk for rotation is mounted
+  mount:
+    path: "{{ rotator_disk_name }}"
+    src: "{{ rotator_disk_mount_path }}"
+    fstype: ext4
+    state: mounted
+  when: rotator_disk_name not in mounted_devices
+
+- name: configuring logrotate
+  template:
+    src: "{{ role_path }}/files/etc/logrotate.conf"
+    dest: /etc/logrotate.conf
+
+- name: make configuration directory
+  file:
+    name: /etc/logrotate.d/
+    state: directory
+
+- name: copy configuring files logrotate
+  copy:
+    src: "{{ role_path }}/files/etc/logrotate.d/"
+    dest: /etc/logrotate.d/
+
+- name: make configuration directory
+  file:
+    name: /etc/rsyslog.d/
+    state: directory
+
+- name: configuring rsyslog
+  template:
+    src: "{{ role_path }}/files/etc/rsyslog.conf"
+    dest: /etc/rsyslog.conf
+
+- name: configuring crontab
+  template:
+    src: "{{ role_path }}/files/etc/crontab"
+    dest: /etc/crontab
+
+- name: start and enable rsyslog
+  service:
+    name: rsyslog
+    state: started
+
+- name: restart service rsyslog
+  service:
+    name: rsyslog
+    state: restarted
+    enabled: yes

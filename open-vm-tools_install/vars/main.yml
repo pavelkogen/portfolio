@@ -1,0 +1,2 @@
+---
+vmware-uninstall-tools.pl: '/opt/ansible/roles/vmtools_install/files/vmware-uninstall-tools.pl'
