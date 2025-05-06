@@ -1,0 +1,21 @@
+
+hosts: '{{ host }}'
+  gather_facts: yes
+  roles:
+    - open-vm-tools_install 
+  tasks:
+  - name: Start service vmtoolsd, if not started
+    shell: service --status-all | grep tools
+    register: service
+  - debug: var=service.stdout_lines
+  - name: "Check if open-vm-tools is installed"
+    package_facts:
+      manager: "auto"
+  - name: "open-vm-tools result"
+    debug: 
+      msg: "open-vm-tools found"
+    when: "'open-vm-tools' in ansible_facts.packages:"
+  - name: "open-vm-tools result"
+    debug:
+      msg: "open-vm-tools NOT found"
+    when: "'open-vm-tools' not in  ansible_facts.packages:"

@@ -1,0 +1,26 @@
+---
+- name: block
+  block:
+    - name: check exist rpm or not
+      shell: rpm -q open-vm-tools
+      register: check_open_vm_tools
+      ignore_errors: True
+    - name: check exist vmtoolsd or not
+      shell: type vmtoolsd
+      register: check_vmtoolsd
+      ignore_errors: True
+    - name: remove native vm-tools
+      script: "/opt/ansible/roles/open-vm-tools_install/files/vmware-uninstall-tools.pl" 
+      when: check_vmtoolsd.rc == 0 and check_open_vm_tools.rc != 0
+    - name: install the latest version of open-vm-tools
+      yum:
+        name: open-vm-tools
+        state: latest
+      notify: 
+         - enable and restart vmtoolsd
+  when: type == 'virtual' and ((ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "6") or
+        (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "7") or
+        (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8") or
+        (ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "7") or
+        (ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "8"))
+

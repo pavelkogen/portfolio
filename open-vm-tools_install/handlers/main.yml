@@ -1,0 +1,8 @@
+---
+- name: enable and restart vmtoolsd
+  service:
+    name: vmtoolsd
+    enabled: yes
+    state: restarted
+
+ 
